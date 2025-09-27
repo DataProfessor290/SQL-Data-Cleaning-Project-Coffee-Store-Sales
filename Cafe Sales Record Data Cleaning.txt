@@ -1,0 +1,230 @@
+----------------------------------------------------------------------------------------------
+/* 
+DATA CLEANING IN SQL
+Converting a very dirty cafe store sales record into a ready to analyze dataset
+*/
+----------------------------------------------------------------------------------------------
+USE coffee_store;
+
+SHOW TABLES;
+
+SELECT *
+FROM orders;
+
+SHOW COLUMNS FROM orders;
+
+CREATE TABLE dorders 
+LIKE orders;
+
+
+INSERT INTO dorders
+SELECT *
+FROM orders;
+
+SHOW COLUMNS FROM dorders;
+
+SELECT *
+FROM dorders;
+
+SELECT COUNT(*)
+FROM dorders;
+
+SELECT COUNT(*)
+FROM 
+	(SELECT DISTINCT * FROM dorders) AS unique_rows;
+    
+SELECT DISTINCT transaction_id 
+FROM dorders
+ORDER BY 1;
+
+SELECT DISTINCT item
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE item IN ("", "ERROR", "UNKNOWN");
+
+UPDATE dorders
+SET item = "Unknown"
+WHERE item IN ("", "ERROR", "UNKNOWN");
+
+SELECT DISTINCT payment_method
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE payment_method IN ("", "ERROR", "UNKNOWN");
+
+UPDATE dorders
+SET payment_method = "Unknown"
+WHERE payment_method IN ("", "ERROR", "UNKNOWN");
+
+SELECT DISTINCT location
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE location IN ("", "ERROR", "UNKNOWN");
+
+UPDATE dorders
+SET location = "Unknown"
+WHERE location IN ("", "ERROR", "UNKNOWN");
+
+SELECT DISTINCT transaction_date
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE transaction_date IN ("", "ERROR", "UNKNOWN");
+
+SELECT DISTINCT transaction_date, HEX(transaction_date)
+FROM dorders
+ORDER BY 1;
+
+UPDATE dorders
+SET transaction_date = REPLACE(REPLACE(REPLACE(REPLACE(transaction_date, '\r', ""),"", ""), "ERROR", ""), "UNKNOWN", "");
+
+UPDATE dorders
+SET transaction_date = NULL 
+WHERE transaction_date = "";
+
+ALTER TABLE dorders
+MODIFY COLUMN transaction_date DATE;
+
+SELECT DISTINCT quantity
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE quantity IN ("", "ERROR", "UNKNOWN");
+
+UPDATE dorders
+SET quantity = NULL 
+WHERE quantity IN ("", "ERROR", "UNKNOWN");
+
+ALTER TABLE dorders
+MODIFY COLUMN quantity INT;
+
+SELECT DISTINCT price_per_unit
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE price_per_unit IN ("", "ERROR", "UNKNOWN");
+
+UPDATE dorders
+SET price_per_unit = NULL 
+WHERE price_per_unit IN ("", "ERROR", "UNKNOWN");
+
+ALTER TABLE dorders
+MODIFY COLUMN price_per_unit FLOAT;
+
+SELECT DISTINCT total_spent
+FROM dorders
+ORDER BY 1;
+
+SELECT *
+FROM dorders
+WHERE total_spent IN ("", "ERROR", "UNKNOWN");
+
+UPDATE dorders
+SET total_spent = NULL 
+WHERE total_spent IN ("", "ERROR", "UNKNOWN");
+
+ALTER TABLE dorders
+MODIFY COLUMN total_spent FLOAT;
+
+UPDATE dorders
+SET quantity = total_spent / price_per_unit
+WHERE quantity IS NULL;
+
+UPDATE dorders
+SET price_per_unit = total_spent / 	quantity
+WHERE price_per_unit IS NULL;
+
+UPDATE dorders
+SET total_spent = quantity * price_per_unit
+WHERE total_spent IS NULL;
+
+SELECT DISTINCT item, price_per_unit
+FROM dorders
+ORDER BY 1;
+
+UPDATE dorders
+SET price_per_unit = 3
+WHERE item = "Cake";
+
+UPDATE dorders
+SET price_per_unit = 2
+WHERE item = "Coffee";
+
+UPDATE dorders
+SET price_per_unit = 1
+WHERE item = "Cookie";
+
+UPDATE dorders
+SET price_per_unit = 3
+WHERE item = "Juice";
+
+UPDATE dorders
+SET price_per_unit = 5
+WHERE item = "Salad";
+
+UPDATE dorders
+SET price_per_unit = 4
+WHERE item = "Sandwich";
+
+UPDATE dorders
+SET price_per_unit = 4
+WHERE item = "Smoothie";
+
+UPDATE dorders
+SET price_per_unit = 1.5
+WHERE item = "Tea";
+
+UPDATE dorders
+SET item = "Cookie"
+WHERE price_per_unit = 1;
+
+UPDATE dorders
+SET item = "Tea"
+WHERE price_per_unit = 1.5;
+
+UPDATE dorders
+SET item = "Coffee"
+WHERE price_per_unit = 2;
+
+UPDATE dorders
+SET item = "Salad"
+WHERE price_per_unit = 5;
+
+
+
+SELECT *
+FROM dorders
+WHERE quantity IS NULL OR price_per_unit IS NULL OR total_spent IS NULL;
+
+SELECT DISTINCT item, price_per_unit
+FROM dorders
+ORDER BY 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
